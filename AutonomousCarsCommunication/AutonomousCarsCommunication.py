@@ -5,6 +5,19 @@ class AutonomousCarsCommunication(object):
 
     def __init__(self, manufacturer, model, carID):
         # Set the current car information (manufacturer, model, unique ID, speed, location, events)
+
+        # Validation for manufacturer
+        if not isinstance(manufacturer, str):
+            raise ValueError(f"Manufacturer must be a string! Received: {type(manufacturer)}")
+        
+        # Validation for model
+        if not isinstance(model, str):
+            raise ValueError(f"Model must be a string! Received: {type(model)}")
+
+        # Validation for carID
+        if carID < 0:
+            raise ValueError("carID cannot be a negative number.")
+
         self.manufacturer = manufacturer
         self.model = model
         self.carID = carID
@@ -17,7 +30,11 @@ class AutonomousCarsCommunication(object):
 
     # Set the current speed of the car
     def set_car_speed(self, speed):
-        self.speed = speed
+        # the speed can be between 0 and 300 kilometers per hour
+        if speed>=0 and speed <= 300:
+            self.speed = speed
+        else:
+            print(f"Error: Speed {speed} is out of safe range (0-300 km/h).")
 
     # Set the current location (in coordinates X and Y)
     def set_car_location(self, x, y):
@@ -25,7 +42,7 @@ class AutonomousCarsCommunication(object):
         self.y = y 
     
     # Encountered events in the last 100km
-    def set_car_events(self, event):
+    def set_car_event(self, event):
         self.events.append(event)
 
     # Add the current car to the car lists
@@ -71,6 +88,14 @@ class AutonomousCarsCommunication(object):
                 closest_car = car
         
         return closest_car
+    
+    def show_events(self):
+        if not self.events:
+            print(f"The car {self.manufacturer} {self.model} {self.carID} has no recorded events.")
+        else:
+            print(f"The events for the {self.manufacturer} {self.model} {self.carID} are:")
+            for i, event in enumerate(self.events, 1):
+                print(f"{i}. {event}")
 
 
 car1 = AutonomousCarsCommunication("Audi", "Q5", 76767)
@@ -80,6 +105,9 @@ car3 = AutonomousCarsCommunication("Opel", "Astra", 75888)
 car1.set_car_speed(100)
 car1.x = 100
 car1.y = 100
+car1.set_car_event("Semaphore - waiting at a Red Light")
+car1.set_car_event("Pedestrian Crossing Suddenly")
+car1.set_car_event("Obstacle in Lane")
 car1.add_car()
 car1.send_car_information()
 
@@ -103,9 +131,7 @@ closest_car_from_car2 = car2.pick_closest_car()
 if closest_car_from_car2:
     print(f"The closest car to {car2.manufacturer} is the {closest_car_from_car2.manufacturer} {closest_car_from_car2.model}.The {closest_car_from_car2.manufacturer} {closest_car_from_car2.model} has {closest_car_from_car2.speed} kilometers per hour.")
 
-
-
-
+car1.show_events()
 
 
 
